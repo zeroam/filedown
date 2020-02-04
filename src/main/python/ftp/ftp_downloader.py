@@ -103,6 +103,9 @@ def download(ftp_cfg, console=None):
     # initialize
     set_logger()
 
+    ftp_cfg_origin = ftp_cfg
+    ftp_cfg = ftp_cfg.copy()
+
     # download day_before data
     if ftp_cfg['day_before']:
         day_before = datetime.now() - timedelta(days=ftp_cfg['day_before'])

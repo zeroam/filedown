@@ -1,3 +1,4 @@
+import threading
 from fbs_runtime.application_context.PyQt5 import (
     ApplicationContext,
     cached_property
@@ -13,8 +14,10 @@ from PyQt5.QtWidgets import (
     QStatusBar,
     QAction,
     QTextEdit,
+    QPlainTextEdit,
     QLineEdit,
     QLabel,
+    QMessageBox,
 )
 from PyQt5.QtGui import (
     QImage,
@@ -22,6 +25,9 @@ from PyQt5.QtGui import (
 )
 from PyQt5.QtCore import (
     QSize,
+    QCoreApplication,
+    QThread,
+    pyqtSignal,
 )
 
 import os
@@ -31,6 +37,25 @@ import traceback
 # Custom
 from ftp import ftp_downloader
 from ftp.util import get_cfg
+
+
+class ftpThread(QThread):
+    append_text_signal = pyqtSignal(str)
+
+    def __init__(self):
+        super().__init__()
+        self.ftp_cfg = get_cfg('config.yml')
+
+    def __del__(self):
+        self.wait()
+
+    def run(self):
+        self.append_text_signal.emit('start downloading...')
+        try:
+            ftp_downloader.download(self.ftp_cfg)
+        except Exception as e:
+            print(traceback.format_exc())
+        self.append_text_signal.emit('complete downloading...')
 
 class AppContext(ApplicationContext):
     def __init__(self, *args, **kwargs):
@@ -55,7 +80,6 @@ class MainWindow(QMainWindow):
 
         self.ctx = ctx
         self.ftp_cfg = get_cfg('config.yml')
-        self.is_download = False
         self.setWindowTitle('filedown')
 
         self.resize(600, 400)
@@ -90,9 +114,9 @@ class MainWindow(QMainWindow):
         vb.addLayout(hb)
 
         # text board
-        text_edit = QTextEdit()
+        text_edit = QPlainTextEdit()
         text_edit.setReadOnly(True)
-        text_edit.setLineWrapMode(QTextEdit.NoWrap)
+        # text_edit.setLineWrapMode(QTextEdit.NoWrap)
 
         font = text_edit.font()
         font.setFamily('Courier')
@@ -102,10 +126,10 @@ class MainWindow(QMainWindow):
         self.text_edit = text_edit
 
         # download button
-        download_btn = QPushButton('download', self)
-        download_btn.clicked.connect(self.ftp_download)
+        self.download_btn = QPushButton('download', self)
+        self.download_btn.clicked.connect(self.ftp_download)
 
-        vb.addWidget(download_btn, alignment=QtCore.Qt.AlignRight)
+        vb.addWidget(self.download_btn, alignment=QtCore.Qt.AlignRight)
 
         win.setLayout(vb)
         self.setCentralWidget(win)
@@ -120,20 +144,22 @@ class MainWindow(QMainWindow):
     def open_site_manager(self):
         print('click')
 
+    def append_text(self, text):
+        self.text_edit.appendPlainText(text)
+
+    def done(self):
+        self.download_btn.setEnabled(True)
+        QMessageBox.information(self, 'Done!', 'Done download')
+        
+
     def ftp_download(self):
-        if self.is_download:
-            print('is downloading')
-            return
-        self.is_download = True
-        self.text_edit.append('downloading...')
-        print(self.text_edit.toPlainText())
-        try:
-            ftp_downloader.download(self.ftp_cfg, self.text_edit.append)
-        except Exception as e:
-            print(traceback.format_exc())
-        finally:
-            self.is_download = False
-        self.text_edit.append('download complete')
+        self.ftp_thread = ftpThread()
+        
+        self.ftp_thread.append_text_signal.connect(self.append_text)
+        self.ftp_thread.finished.connect(self.done)
+        self.ftp_thread.start()
+
+        self.download_btn.setEnabled(False)
 
 
 if __name__ == '__main__':
