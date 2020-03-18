@@ -1,8 +1,10 @@
 import os
+import shutil
 import ftplib
+import logging
 import posixpath
 
-from ftp_file import FTPFile
+from ftp.ftp_file import FTPFile
 
 
 class FTPClient:
@@ -32,15 +34,18 @@ class FTPClient:
         self._passive_mode = True
 
     def download(self):
+        self._connect()
+
         # TODO: 다운로드 실패한 파일에 대한 처리 필요
         while self._file_to_download:
             ftp_file = self._file_to_download.pop(0)
             if self.download_file(ftp_file):
                 self._file_downloaded.append(ftp_file)
+
+        self._disconnect()
         
     def download_file(self, ftp_file: FTPFile) -> bool:
         ftp_file.mkdir()
-
         # TODO: overwrite 옵션 적용??
         # TODO: 프로그레스바를 총 용량 대비로 해도 좋을 듯
         try:
@@ -48,8 +53,8 @@ class FTPClient:
                 self._ftp_handler.retrbinary(
                     f'RETR {ftp_file.ftp_path}', f.write)
 
-            os.rename(ftp_file.temp_path, ftp_file.local_path)
-            print('download file:', ftp_file.local_dir)
+            shutil.move(ftp_file.temp_path, ftp_file.local_path)
+            print('download file:', ftp_file.local_path)
         except Exception as e:
             print(e)
             return False
@@ -66,11 +71,24 @@ class FTPClient:
         local_dir_abs = os.path.abspath(local_dir)
         self._mirror_ftp_dir(ftp_dir, local_dir)
 
+        self._disconnect()
+
     def _connect(self):
-        print(f'connecting {self.url}')
+        if self._ftp_handler is not None:
+            return
+
+        logging.info(f'connecting {self.url}')
         self._ftp_handler = ftplib.FTP(self.url, self.username, self.password)
         self._ftp_handler.set_pasv(self._passive_mode)
-        print(f'connected {self.url}')
+        logging.info(f'connected {self.url}')
+
+    def _disconnect(self):
+        try:
+            self._ftp_handler.close()
+        except:
+            pass
+        finally:
+            self._ftp_handler = None
 
     def _mirror_ftp_dir(self, ftp_path, local_path):
         """ replicates a directory on an ftp server recursively """
@@ -83,7 +101,7 @@ class FTPClient:
             else:
                 ftp_file = FTPFile(ftp_path_item, local_path_item)
                 # TODO: 추가할 때 중복 제거할 수 있는 방안 고민
-                print('Adding ftp_file:', ftp_file)
+                logging.debug('Adding ftp_file:', ftp_file)
                 self._file_to_download.append(ftp_file)
 
     def _is_ftp_dir(self, ftp_path: str):

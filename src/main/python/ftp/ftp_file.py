@@ -5,7 +5,7 @@ class FTPFile:
 
     def __init__(self, ftp_path: str, local_path: str):
         self._ftp_path = ftp_path
-        self._local_path = Path(local_path)
+        self._local_path = Path(local_path).absolute()
         self._local_dir = self._local_path.parent
         self._temp_path = self._local_dir / str(uuid.uuid4())
 
@@ -29,5 +29,5 @@ class FTPFile:
         self._local_dir.mkdir(
             parents=parents, exist_ok=exist_ok)
 
-    def __str__(self):
+    def __repr__(self):
         return f'<FTP Path: {self.ftp_path}>'
