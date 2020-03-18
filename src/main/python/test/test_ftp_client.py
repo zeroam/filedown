@@ -56,9 +56,8 @@ class TestFTPClient(unittest.TestCase):
         ftp_file = FTPFile(ftp_path, local_path)
 
         ftp_client = FTPClient(self.url)
-        ftp_client._connect()
-        ftp_client.download_file(ftp_file)
-        ftp_client._disconnect()
+        ftp_client.append_ftp_file(ftp_file)
+        ftp_client.download()
 
         if not os.path.exists(local_path):
             raise FileNotFoundError(f'file not found: {local_path}')
@@ -69,10 +68,10 @@ class TestFTPClient(unittest.TestCase):
         ftp_file = FTPFile(ftp_path, local_path)
 
         ftp_client = FTPClient(self.url)
-        ftp_client._connect()
-        ftp_client.download_file(ftp_file)
-        ftp_client.download_file(ftp_file)
-        ftp_client._disconnect()
+        ftp_client.append_ftp_file(ftp_file)
+        ftp_client.download()
+        ftp_client.append_ftp_file(ftp_file)
+        ftp_client.download()
 
         if not os.path.exists(local_path):
             raise FileNotFoundError(f'file not found: {local_path}')

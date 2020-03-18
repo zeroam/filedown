@@ -39,14 +39,13 @@ class FTPClient:
         # TODO: 다운로드 실패한 파일에 대한 처리 필요
         while self._file_to_download:
             ftp_file = self._file_to_download.pop(0)
-            if self.download_file(ftp_file):
+            if self._download_file(ftp_file):
                 self._file_downloaded.append(ftp_file)
 
         self._disconnect()
         
-    def download_file(self, ftp_file: FTPFile) -> bool:
+    def _download_file(self, ftp_file: FTPFile) -> bool:
         ftp_file.mkdir()
-        # TODO: overwrite 옵션 적용??
         # TODO: 프로그레스바를 총 용량 대비로 해도 좋을 듯
         try:
             with open(ftp_file.temp_path, 'wb') as f:
@@ -62,7 +61,6 @@ class FTPClient:
             if os.path.exists(ftp_file.temp_path):
                 os.remove(ftp_file.temp_path)
 
-
         return True
 
     def apply_file_to_download(self, ftp_dir: str, local_dir: str='.') -> list:
@@ -72,6 +70,9 @@ class FTPClient:
         self._mirror_ftp_dir(ftp_dir, local_dir)
 
         self._disconnect()
+
+    def append_ftp_file(self, ftp_file: FTPFile) -> None:
+        self._file_to_download.append(ftp_file)
 
     def _connect(self):
         if self._ftp_handler is not None:
