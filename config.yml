@@ -7,7 +7,7 @@ ftp:
   # type: noaa
   day_before: 2
   remote_dirs:
-    - VIIRS-SDR/VIIRS-Day-Night-Band-SDR/NPP
+    - 20200301/VIIRS-SDR/VIIRS-Day-Night-Band-SDR/NPP
     # - VIIRS-SDR/VIIRS-Moderate-Bands-SDR-Geo/NPP
     # - VIIRS-SDR/VIIRS-Day-Night-Band-SDR-Ellipsoid-Geo/NPP
     # - VIIRS-EDR/VIIRS-Cloud-Mask-EDR/NPP

@@ -6,6 +6,7 @@ from fbs_runtime.application_context.PyQt5 import (
 from PyQt5 import QtGui, QtCore
 from PyQt5.QtWidgets import (
     QMainWindow,
+    QDialog,
     QWidget,
     QHBoxLayout,
     QVBoxLayout,
@@ -35,7 +36,8 @@ import sys
 import traceback
 
 # Custom
-from ftp import ftp_downloader
+from ui import mainwindow, config
+from ftp.ftp_client import FTPClient
 from ftp.util import get_cfg
 
 
@@ -57,92 +59,58 @@ class ftpThread(QThread):
             print(traceback.format_exc())
         self.append_text_signal.emit('complete downloading...')
 
-class AppContext(ApplicationContext):
-    def __init__(self, *args, **kwargs):
-        super(AppContext, self).__init__(*args, **kwargs)
 
-    @cached_property
-    def main_window(self):
-        return MainWindow(self)
+class MainWindow(QMainWindow, mainwindow.Ui_MainWindow):
 
-    @cached_property
-    def site_manager(self):
-        return QIcon(self.get_resource('images/folder.png'))
-
-    def run(self):
-        self.main_window.show()
-        return self.app.exec_()
-
-
-class MainWindow(QMainWindow):
-    def __init__(self, ctx):
+    def __init__(self):
         super(MainWindow, self).__init__()
 
-        self.ctx = ctx
         self.ftp_cfg = get_cfg('config.yml')
-        self.setWindowTitle('filedown')
+        self.setupUi(self)
 
-        self.resize(600, 400)
+        # action
+        self.actionConfig.triggered.connect(self.config)
 
-        # set toolbar
-        self.toolbar = self.addToolBar('Config')
-
-        # set statusbar
-        self.status = QStatusBar()
-        self.setStatusBar(self.status)
-
-        # set widget
-        win = QWidget()
-        vb = QVBoxLayout()
-
-        # toolbar - action
-        site_manager_action = QAction(self.ctx.site_manager, 'Site Manager', self)
-        site_manager_action.triggered.connect(self.open_site_manager)
-        self.toolbar.addAction(site_manager_action)
-
-        # config information
-        hb = QHBoxLayout()
-        hb.addWidget(QLabel("url:"))
-        self.url_edit = QLineEdit()
-        hb.addWidget(self.url_edit)
-        hb.addWidget(QLabel("user:"))
-        self.user_edit = QLineEdit()
-        hb.addWidget(self.user_edit)
-        hb.addWidget(QLabel("pw:"))
-        self.pw_edit = QLineEdit()
-        hb.addWidget(self.pw_edit)
-        vb.addLayout(hb)
-
-        # text board
-        text_edit = QPlainTextEdit()
-        text_edit.setReadOnly(True)
-        # text_edit.setLineWrapMode(QTextEdit.NoWrap)
-
-        font = text_edit.font()
-        font.setFamily('Courier')
-        font.setPointSize(10)
-        
-        vb.addWidget(text_edit)
-        self.text_edit = text_edit
-
-        # download button
-        self.download_btn = QPushButton('download', self)
-        self.download_btn.clicked.connect(self.ftp_download)
-
-        vb.addWidget(self.download_btn, alignment=QtCore.Qt.AlignRight)
-
-        win.setLayout(vb)
-        self.setCentralWidget(win)
+        # button
+        self.pushButtonApply.clicked.connect(self.apply)
+        self.pushButtonDownload.clicked.connect(self.download)
+        self.pushButtonCancel.clicked.connect(self.cancel)
 
         # set config
-        self.url_edit.setText(self.ftp_cfg['url'])
-        self.user_edit.setText(self.ftp_cfg['username'])
-        self.pw_edit.setText(self.ftp_cfg['password'])
+        self.lineEditHost.setText(self.ftp_cfg['url'])
+        self.lineEditUser.setText(self.ftp_cfg['username'])
+        self.lineEditPassword.setText(self.ftp_cfg['password'])
 
-        self.show()
+    def config(self):
+        # TODO : 파일 읽기 (.yml)
 
-    def open_site_manager(self):
-        print('click')
+        # TODO : 파일 내용 적용하기
+        configDialog = ConfigDialog(self)
+        configDialog.exec_()
+
+    def apply(self):
+        url = self.lineEditHost.text()
+        username = self.lineEditUser.text()
+        password = self.lineEditPassword.text()
+        self.ftp_client = FTPClient(url, username, password)
+        # self.ftp_client.apply_file_to_download(self.ftp_cfg['ftp_dir'])
+        for remote_dir, local_dir in zip(self.ftp_cfg['remote_dirs'], self.ftp_cfg['local_dirs']):
+            self.ftp_client.apply_file_to_download(remote_dir, local_dir)
+
+        model = QtGui.QStandardItemModel()
+        self.listViewFileToDownload.setModel(model)
+        for ftp_file in self.ftp_client.file_to_download:
+            item = QtGui.QStandardItem(ftp_file.ftp_path)
+            model.appendRow(item)
+
+        QMessageBox.information(self, 'Done!', '파일 목록을 모두 가져왔습니다!')
+        self.pushButtonApply.setEnabled(False)
+
+    def download(self):
+        pass
+
+    def cancel(self):
+        pass
 
     def append_text(self, text):
         self.text_edit.appendPlainText(text)
@@ -162,7 +130,16 @@ class MainWindow(QMainWindow):
         self.download_btn.setEnabled(False)
 
 
+class ConfigDialog(QDialog, config.Ui_Dialog):
+
+    def __init__(self, parent=None):
+        super(ConfigDialog, self).__init__(parent)
+        self.setupUi(self)
+
+
 if __name__ == '__main__':
-    appctxt = AppContext()
-    exit_code = appctxt.run()
+    appctxt = ApplicationContext()
+    window = MainWindow()
+    window.show()
+    exit_code = appctxt.app.exec_()
     sys.exit(exit_code)
