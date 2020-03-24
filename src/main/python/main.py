@@ -1,39 +1,11 @@
-import threading
-from fbs_runtime.application_context.PyQt5 import (
-    ApplicationContext,
-    cached_property
-)
-from PyQt5 import QtGui, QtCore
-from PyQt5.QtWidgets import (
-    QMainWindow,
-    QDialog,
-    QWidget,
-    QHBoxLayout,
-    QVBoxLayout,
-    QFormLayout,
-    QPushButton,
-    QStatusBar,
-    QAction,
-    QTextEdit,
-    QPlainTextEdit,
-    QLineEdit,
-    QLabel,
-    QMessageBox,
-)
-from PyQt5.QtGui import (
-    QImage,
-    QIcon,
-)
-from PyQt5.QtCore import (
-    QSize,
-    QCoreApplication,
-    QThread,
-    pyqtSignal,
-)
-
 import os
 import sys
 import traceback
+
+from fbs_runtime.application_context.PyQt5 import (
+    ApplicationContext,
+)
+from PyQt5 import QtGui, QtCore, QtWidgets
 
 # Custom
 from ui import mainwindow, config
@@ -41,8 +13,8 @@ from ftp.ftp_client import FTPClient
 from ftp.util import get_cfg
 
 
-class ftpThread(QThread):
-    append_text_signal = pyqtSignal(str)
+class ftpThread(QtCore.QThread):
+    append_text_signal = QtCore.pyqtSignal(str)
 
     def __init__(self):
         super().__init__()
@@ -60,7 +32,7 @@ class ftpThread(QThread):
         self.append_text_signal.emit('complete downloading...')
 
 
-class MainWindow(QMainWindow, mainwindow.Ui_MainWindow):
+class MainWindow(QtWidgets.QMainWindow, mainwindow.Ui_MainWindow):
 
     def __init__(self):
         super(MainWindow, self).__init__()
@@ -82,18 +54,19 @@ class MainWindow(QMainWindow, mainwindow.Ui_MainWindow):
         self.lineEditPassword.setText(self.ftp_cfg['password'])
 
     def config(self):
-        # TODO : 파일 읽기 (.yml)
+        filename = QtWidgets.QFileDialog.getOpenFileName(self, 'Open File', '.', '(*.yml)')[0]
 
         # TODO : 파일 내용 적용하기
-        configDialog = ConfigDialog(self)
+        configDialog = ConfigDialog(self, filename)
         configDialog.exec_()
 
     def apply(self):
+        """다운로드 할 목록 리스트 뷰에 추가"""
         url = self.lineEditHost.text()
         username = self.lineEditUser.text()
         password = self.lineEditPassword.text()
         self.ftp_client = FTPClient(url, username, password)
-        # self.ftp_client.apply_file_to_download(self.ftp_cfg['ftp_dir'])
+
         for remote_dir, local_dir in zip(self.ftp_cfg['remote_dirs'], self.ftp_cfg['local_dirs']):
             self.ftp_client.apply_file_to_download(remote_dir, local_dir)
 
@@ -102,6 +75,9 @@ class MainWindow(QMainWindow, mainwindow.Ui_MainWindow):
         for ftp_file in self.ftp_client.file_to_download:
             item = QtGui.QStandardItem(ftp_file.ftp_path)
             model.appendRow(item)
+
+        self.progressBar.setMaximum(len(self.ftp_client.file_to_download))
+        self.progressBar.setValue(0)
 
         QMessageBox.information(self, 'Done!', '파일 목록을 모두 가져왔습니다!')
         self.pushButtonApply.setEnabled(False)
@@ -130,11 +106,25 @@ class MainWindow(QMainWindow, mainwindow.Ui_MainWindow):
         self.download_btn.setEnabled(False)
 
 
-class ConfigDialog(QDialog, config.Ui_Dialog):
+class ConfigDialog(QtWidgets.QDialog, config.Ui_Dialog):
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, filename=None):
         super(ConfigDialog, self).__init__(parent)
         self.setupUi(self)
+
+        if not filename:
+            return
+
+        ftp_cfg = get_cfg(filename)
+        self.lineEditHost.setText(ftp_cfg['url'])
+        self.lineEditUsername.setText(ftp_cfg['username'])
+        self.lineEditPassword.setText(ftp_cfg['password'])
+        if ftp_cfg['passive_mode'] == False:
+            self.radioButtonActive.setChecked(True)
+        else:
+            self.radioButtonDefault.setChecked(True)
+        self.textEditRemoteDirs.setText('\n'.join(ftp_cfg['remote_dirs']))
+        self.textEditLocalDirs.setText('\n'.join(ftp_cfg['local_dirs']))
 
 
 if __name__ == '__main__':

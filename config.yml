@@ -1,7 +1,7 @@
 ftp:
   url: ftp-npp.bou.class.noaa.gov
   username: anonymous
-  password: null
+  password: anonymous@
   # passive_mode: no
   passive_mode: yes
   # type: noaa
@@ -11,15 +11,12 @@ ftp:
     # - VIIRS-SDR/VIIRS-Moderate-Bands-SDR-Geo/NPP
     # - VIIRS-SDR/VIIRS-Day-Night-Band-SDR-Ellipsoid-Geo/NPP
     # - VIIRS-EDR/VIIRS-Cloud-Mask-EDR/NPP
-  base_dir: download/noaa
   local_dirs:
     - SVDNB
     - GMODO
     - GDNBO
     - VICMO
-  dest_dir: D:\ul19_data\noaa
-  # dir_pattern:
-  #   - NPP
+  log_dir: log
   dir_pattern: null
   pattern: 
     - .*\.xml$
