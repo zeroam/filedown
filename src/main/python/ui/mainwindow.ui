@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>756</width>
-    <height>637</height>
+    <width>788</width>
+    <height>657</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,34 +18,34 @@
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
-       <widget class="QLabel" name="label">
+       <widget class="QLabel" name="labelHost">
         <property name="text">
          <string>Host: </string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="lineEdit"/>
+       <widget class="QLineEdit" name="lineEditHost"/>
       </item>
       <item>
-       <widget class="QLabel" name="label_2">
+       <widget class="QLabel" name="labelUser">
         <property name="text">
          <string>User: </string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="lineEdit_2"/>
+       <widget class="QLineEdit" name="lineEditUser"/>
       </item>
       <item>
-       <widget class="QLabel" name="label_3">
+       <widget class="QLabel" name="labelPassword">
         <property name="text">
          <string>Password: </string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="lineEdit_3"/>
+       <widget class="QLineEdit" name="lineEditPassword"/>
       </item>
      </layout>
     </item>
@@ -54,28 +54,28 @@
       <item>
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
-         <widget class="QLabel" name="label_4">
+         <widget class="QLabel" name="labelFileToDownload">
           <property name="text">
            <string>File To Download</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QListView" name="listView"/>
+         <widget class="QListView" name="listViewFileToDownload"/>
         </item>
        </layout>
       </item>
       <item>
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <item>
-         <widget class="QLabel" name="label_5">
+         <widget class="QLabel" name="labelDownloadComplete">
           <property name="text">
            <string>Download Complete</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QListView" name="listView_2"/>
+         <widget class="QListView" name="listViewDownloadComplete"/>
         </item>
        </layout>
       </item>
@@ -84,7 +84,7 @@
     <item>
      <widget class="QProgressBar" name="progressBar">
       <property name="value">
-       <number>24</number>
+       <number>0</number>
       </property>
      </widget>
     </item>
@@ -97,7 +97,7 @@
        <number>400</number>
       </property>
       <item>
-       <widget class="QPushButton" name="pushButton_2">
+       <widget class="QPushButton" name="pushButtonDownload">
         <property name="maximumSize">
          <size>
           <width>100</width>
@@ -110,7 +110,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton_3">
+       <widget class="QPushButton" name="pushButtonCancel">
         <property name="maximumSize">
          <size>
           <width>100</width>
@@ -123,7 +123,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton">
+       <widget class="QPushButton" name="pushButtonApply">
         <property name="maximumSize">
          <size>
           <width>100</width>
@@ -144,8 +144,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>756</width>
-     <height>26</height>
+     <width>788</width>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

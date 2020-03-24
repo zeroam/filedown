@@ -17,39 +17,39 @@
    <item>
     <layout class="QFormLayout" name="formLayout">
      <item row="0" column="0">
-      <widget class="QLabel" name="label">
+      <widget class="QLabel" name="labelHost">
        <property name="text">
         <string>Host</string>
        </property>
       </widget>
      </item>
      <item row="0" column="1">
-      <widget class="QLineEdit" name="lineEdit"/>
+      <widget class="QLineEdit" name="lineEditHost"/>
      </item>
      <item row="1" column="0">
-      <widget class="QLabel" name="label_2">
+      <widget class="QLabel" name="labelUsername">
        <property name="text">
         <string>Username</string>
        </property>
       </widget>
      </item>
      <item row="1" column="1">
-      <widget class="QLineEdit" name="lineEdit_2"/>
+      <widget class="QLineEdit" name="lineEditUsername"/>
      </item>
      <item row="2" column="0">
-      <widget class="QLabel" name="label_3">
+      <widget class="QLabel" name="labelPassword">
        <property name="text">
         <string>Password</string>
        </property>
       </widget>
      </item>
      <item row="2" column="1">
-      <widget class="QLineEdit" name="lineEdit_3"/>
+      <widget class="QLineEdit" name="lineEditPassword"/>
      </item>
      <item row="3" column="0" colspan="2">
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
-        <widget class="QLabel" name="label_4">
+        <widget class="QLabel" name="labelTransferMode">
          <property name="text">
           <string>TransferMode:</string>
          </property>
@@ -58,21 +58,21 @@
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout">
          <item>
-          <widget class="QRadioButton" name="radioButton_3">
+          <widget class="QRadioButton" name="radioButtonDefault">
            <property name="text">
             <string>Default</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QRadioButton" name="radioButton_2">
+          <widget class="QRadioButton" name="radioButtonActive">
            <property name="text">
             <string>Active</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QRadioButton" name="radioButton">
+          <widget class="QRadioButton" name="radioButtonPassive">
            <property name="text">
             <string>Passive</string>
            </property>
@@ -83,54 +83,54 @@
       </layout>
      </item>
      <item row="4" column="0">
-      <widget class="QLabel" name="label_5">
+      <widget class="QLabel" name="labelRemoteDirs">
        <property name="text">
         <string>Remote Dirs</string>
        </property>
       </widget>
      </item>
      <item row="4" column="1">
-      <widget class="QTextEdit" name="textEdit"/>
+      <widget class="QTextEdit" name="textEditRemoteDirs"/>
      </item>
      <item row="5" column="0">
-      <widget class="QLabel" name="label_6">
+      <widget class="QLabel" name="labelBaseDir">
        <property name="text">
-        <string>Base Dirs</string>
+        <string>Base Dir</string>
        </property>
       </widget>
      </item>
      <item row="5" column="1">
-      <widget class="QLineEdit" name="lineEdit_4"/>
-     </item>
-     <item row="6" column="0">
-      <widget class="QLabel" name="label_7">
-       <property name="text">
-        <string>Local Dirs</string>
-       </property>
-      </widget>
-     </item>
-     <item row="6" column="1">
-      <widget class="QLineEdit" name="lineEdit_5"/>
-     </item>
-     <item row="7" column="0">
-      <widget class="QLabel" name="label_8">
-       <property name="text">
-        <string>Dest Dirs</string>
-       </property>
-      </widget>
+      <widget class="QLineEdit" name="lineEditBaseDir"/>
      </item>
      <item row="7" column="1">
-      <widget class="QTextEdit" name="textEdit_2"/>
+      <widget class="QTextEdit" name="textEditLocalDirs"/>
      </item>
-     <item row="8" column="0">
-      <widget class="QLabel" name="label_9">
+     <item row="10" column="0">
+      <widget class="QLabel" name="labelFilePattern">
        <property name="text">
         <string>File Pattern</string>
        </property>
       </widget>
      </item>
+     <item row="10" column="1">
+      <widget class="QLineEdit" name="lineEditFilePattern"/>
+     </item>
      <item row="8" column="1">
-      <widget class="QLineEdit" name="lineEdit_6"/>
+      <widget class="QLineEdit" name="lineEditDestDir"/>
+     </item>
+     <item row="7" column="0">
+      <widget class="QLabel" name="labelLocalDirs">
+       <property name="text">
+        <string>Local Dirs</string>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="0">
+      <widget class="QLabel" name="labelDestDir">
+       <property name="text">
+        <string>Dest Dir</string>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>
