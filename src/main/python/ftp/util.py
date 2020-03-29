@@ -55,6 +55,5 @@ def get_cfg(config_file):
 
     # ftp setting
     ftp_cfg = cfg['ftp']
-    ftp_cfg['base_dir'] = os.path.abspath(ftp_cfg['base_dir'])
 
     return ftp_cfg

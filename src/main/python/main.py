@@ -79,7 +79,7 @@ class MainWindow(QtWidgets.QMainWindow, mainwindow.Ui_MainWindow):
         self.progressBar.setMaximum(len(self.ftp_client.file_to_download))
         self.progressBar.setValue(0)
 
-        QMessageBox.information(self, 'Done!', '파일 목록을 모두 가져왔습니다!')
+        QtWidgets.QMessageBox.information(self, 'Done!', '파일 목록을 모두 가져왔습니다!')
         self.pushButtonApply.setEnabled(False)
 
     def download(self):
@@ -93,7 +93,7 @@ class MainWindow(QtWidgets.QMainWindow, mainwindow.Ui_MainWindow):
 
     def done(self):
         self.download_btn.setEnabled(True)
-        QMessageBox.information(self, 'Done!', 'Done download')
+        QtWidgets.QMessageBox.information(self, 'Done!', 'Done download')
         
 
     def ftp_download(self):
