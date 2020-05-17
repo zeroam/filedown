@@ -67,6 +67,10 @@ class MainWindow(QtWidgets.QMainWindow, mainwindow.Ui_MainWindow):
 
     def apply(self):
         """다운로드 할 목록 리스트 뷰에 추가"""
+        # initialize list view widget
+        self.to_download_model.clear()
+        self.downloaded_model.clear()
+
         url = self.lineEditHost.text()
         username = self.lineEditUser.text()
         password = self.lineEditPassword.text()
@@ -146,6 +150,7 @@ class ConfigDialog(QtWidgets.QDialog, config.Ui_Dialog):
             self.radioButtonDefault.setChecked(True)
         self.textEditRemoteDirs.setText('\n'.join(ftp_cfg['remote_dirs']))
         self.textEditLocalDirs.setText('\n'.join(ftp_cfg['local_dirs']))
+        self.lineEditFilePattern.setText(ftp_cfg['pattern'])
 
 
 if __name__ == '__main__':
