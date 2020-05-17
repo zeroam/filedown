@@ -1,10 +1,10 @@
 ftp:
   local_dirs:
-  - download/SVDNB
+  - download/speedtest
   passive_mode: true
   password: anonymous@
-  pattern: .*\.xml$
+  pattern: (1|512)(KB|MB).zip
   remote_dirs:
-  - 20200301/VIIRS-SDR/VIIRS-Day-Night-Band-SDR/NPP
-  url: ftp-npp.bou.class.noaa.gov
+  - /
+  url: speedtest.tele2.net
   username: anonymous

@@ -99,14 +99,16 @@ class FTPClient:
         """ replicates a directory on an ftp server recursively """
         for item in self._ftp_handler.nlst(ftp_path):
             ftp_path_item = posixpath.join(ftp_path, item)
-            local_path_item = os.path.join(local_path, item)
+
+            local_item = item.lstrip("/")
+            local_path_item = os.path.join(local_path, local_item)
 
             if self._is_ftp_dir(ftp_path_item):
                 self._mirror_ftp_dir(ftp_path_item, local_path_item)
             elif self._pattern_check(item):
                 ftp_file = FTPFile(ftp_path_item, local_path_item)
                 # TODO: 추가할 때 중복 제거할 수 있는 방안 고민
-                logging.debug('Adding ftp_file:', ftp_file)
+                logging.debug(f'Adding ftp_file: {ftp_file}')
                 self._file_to_download.append(ftp_file)
 
     def _is_ftp_dir(self, ftp_path: str):

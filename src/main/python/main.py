@@ -1,5 +1,6 @@
 import os
 import sys
+import logging
 import traceback
 import yaml
 
@@ -10,6 +11,8 @@ from PyQt5 import QtGui, QtCore, QtWidgets
 from ui import mainwindow, config
 from ftp.ftp_client import FTPClient, FTPFile
 from ftp.util import get_cfg
+
+logging.basicConfig(level=logging.DEBUG)
 
 
 class ftpThread(QtCore.QThread):
@@ -34,7 +37,6 @@ class MainWindow(QtWidgets.QMainWindow, mainwindow.Ui_MainWindow):
         super(MainWindow, self).__init__()
 
         self.setupUi(self)
-        self.set_ftp_cfg("config.yml")
 
         # action
         self.actionConfig.triggered.connect(self.config)
@@ -51,8 +53,20 @@ class MainWindow(QtWidgets.QMainWindow, mainwindow.Ui_MainWindow):
         self.listViewFileToDownload.setModel(self.to_download_model)
         self.listViewDownloadComplete.setModel(self.downloaded_model)
 
+        # set ftp cfg
+        self.set_ftp_cfg("config.yml")
+
     def set_ftp_cfg(self, filepath: str) -> None:
         self.ftp_cfg = ftp_cfg = get_cfg(filepath)
+
+        # initialize list view widget
+        self.to_download_model.clear()
+        self.downloaded_model.clear()
+
+        self.progressBar.setValue(0)
+
+        self.pushButtonApply.setEnabled(True)
+        self.pushButtonDownload.setEnabled(False)
 
         # set config
         self.lineEditHost.setText(ftp_cfg["url"])
@@ -121,7 +135,9 @@ class MainWindow(QtWidgets.QMainWindow, mainwindow.Ui_MainWindow):
         self.pushButtonApply.setEnabled(True)
 
     def cancel(self):
-        pass
+        self.pushButtonDownload.setEnabled(False)
+        self.pushButtonApply.setEnabled(True)
+        self.progressBar.setValue(0)
 
     def append_downloaded_file(self, ftp_file: FTPFile):
         item = QtGui.QStandardItem(ftp_file.local_path)
