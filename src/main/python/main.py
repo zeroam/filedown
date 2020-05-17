@@ -9,27 +9,25 @@ from PyQt5 import QtGui, QtCore, QtWidgets
 
 # Custom
 from ui import mainwindow, config
-from ftp.ftp_client import FTPClient
+from ftp.ftp_client import FTPClient, FTPFile
 from ftp.util import get_cfg
 
 
 class ftpThread(QtCore.QThread):
-    append_text_signal = QtCore.pyqtSignal(str)
+    download_complete_signal = QtCore.pyqtSignal(FTPFile)
 
-    def __init__(self):
+    def __init__(self, ftp_client: FTPClient):
         super().__init__()
-        self.ftp_cfg = get_cfg('config.yml')
+        self.ftp_client = ftp_client
 
     def __del__(self):
         self.wait()
 
     def run(self):
-        self.append_text_signal.emit('start downloading...')
         try:
-            ftp_downloader.download(self.ftp_cfg)
+            self.ftp_client.download(self.download_complete_signal)
         except Exception as e:
             print(traceback.format_exc())
-        self.append_text_signal.emit('complete downloading...')
 
 
 class MainWindow(QtWidgets.QMainWindow, mainwindow.Ui_MainWindow):
@@ -46,12 +44,19 @@ class MainWindow(QtWidgets.QMainWindow, mainwindow.Ui_MainWindow):
         # button
         self.pushButtonApply.clicked.connect(self.apply)
         self.pushButtonDownload.clicked.connect(self.download)
+        self.pushButtonDownload.setEnabled(False)
         self.pushButtonCancel.clicked.connect(self.cancel)
 
         # set config
         self.lineEditHost.setText(self.ftp_cfg['url'])
         self.lineEditUser.setText(self.ftp_cfg['username'])
         self.lineEditPassword.setText(self.ftp_cfg['password'])
+
+        # list view setting
+        self.to_download_model = QtGui.QStandardItemModel()
+        self.downloaded_model = QtGui.QStandardItemModel()
+        self.listViewFileToDownload.setModel(self.to_download_model)
+        self.listViewDownloadComplete.setModel(self.downloaded_model)
 
     def config(self):
         filename = QtWidgets.QFileDialog.getOpenFileName(self, 'Open File', '.', '(*.yml)')[0]
@@ -65,34 +70,50 @@ class MainWindow(QtWidgets.QMainWindow, mainwindow.Ui_MainWindow):
         url = self.lineEditHost.text()
         username = self.lineEditUser.text()
         password = self.lineEditPassword.text()
-        self.ftp_client = FTPClient(url, username, password)
+
+        # ftp client setting
+        self.ftp_client = ftp_client = FTPClient(url, username, password)
+        if self.ftp_cfg["passive_mode"]:
+            ftp_client.set_passive_mode()
+        else:
+            ftp_client.set_active_mode()
+        ftp_client.pattern = self.ftp_cfg["pattern"]
 
         for remote_dir, local_dir in zip(self.ftp_cfg['remote_dirs'], self.ftp_cfg['local_dirs']):
             self.ftp_client.apply_file_to_download(remote_dir, local_dir)
 
-        model = QtGui.QStandardItemModel()
-        self.listViewFileToDownload.setModel(model)
         for ftp_file in self.ftp_client.file_to_download:
             item = QtGui.QStandardItem(ftp_file.ftp_path)
-            model.appendRow(item)
+            self.to_download_model.appendRow(item)
 
         self.progressBar.setMaximum(len(self.ftp_client.file_to_download))
         self.progressBar.setValue(0)
 
-        QtWidgets.QMessageBox.information(self, 'Done!', '파일 목록을 모두 가져왔습니다!')
         self.pushButtonApply.setEnabled(False)
+        self.pushButtonDownload.setEnabled(True)
+
+        QtWidgets.QMessageBox.information(self, 'Done!', '파일 목록을 모두 가져왔습니다!')
 
     def download(self):
-        pass
+        self.ftp_thread = ftpThread(self.ftp_client)
+        
+        self.ftp_thread.download_complete_signal.connect(self.append_downloaded_file)
+        self.ftp_thread.finished.connect(self.done)
+        self.ftp_thread.start()
+
+        self.pushButtonDownload.setEnabled(False)
+        self.pushButtonApply.setEnabled(True)
 
     def cancel(self):
         pass
 
-    def append_text(self, text):
-        self.text_edit.appendPlainText(text)
+    def append_downloaded_file(self, ftp_file: FTPFile):
+        item = QtGui.QStandardItem(ftp_file.ftp_path)
+        self.downloaded_model.appendRow(item)
+        self.progressBar.setValue(self.progressBar.value() + 1)
 
     def done(self):
-        self.download_btn.setEnabled(True)
+        self.pushButtonDownload.setEnabled(True)
         QtWidgets.QMessageBox.information(self, 'Done!', 'Done download')
         
 

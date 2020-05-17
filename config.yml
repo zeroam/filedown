@@ -12,14 +12,13 @@ ftp:
     # - VIIRS-SDR/VIIRS-Day-Night-Band-SDR-Ellipsoid-Geo/NPP
     # - VIIRS-EDR/VIIRS-Cloud-Mask-EDR/NPP
   local_dirs:
-    - SVDNB
-    - GMODO
-    - GDNBO
-    - VICMO
+    - download/SVDNB
+    # - download/GMODO
+    # - download/GDNBO
+    # - download/VICMO
   log_dir: log
   dir_pattern: null
-  pattern: 
-    - .*\.xml$
+  pattern: .*\.xml$
   #pattern: null
   overwrite: no
   #overwrite: yes

@@ -1,4 +1,5 @@
 import os
+import re
 import shutil
 import ftplib
 import logging
@@ -9,10 +10,11 @@ from ftp.ftp_file import FTPFile
 
 class FTPClient:
 
-    def __init__(self, url: str, username='ananoymous', password='anonymous@'):
+    def __init__(self, url: str, username: str='ananoymous', password: str='anonymous@'):
         self.url = url
         self.username = username
         self.password = password
+        self.pattern = None
 
         self._passive_mode = True
         self._ftp_handler = None
@@ -33,7 +35,7 @@ class FTPClient:
     def set_passive_mode(self) -> None:
         self._passive_mode = True
 
-    def download(self):
+    def download(self, signal=None) -> None:
         self._connect()
 
         # TODO: 다운로드 실패한 파일에 대한 처리 필요
@@ -41,6 +43,8 @@ class FTPClient:
             ftp_file = self._file_to_download.pop(0)
             if self._download_file(ftp_file):
                 self._file_downloaded.append(ftp_file)
+                if signal:
+                    signal.emit(ftp_file)
 
         self._disconnect()
         
@@ -99,7 +103,7 @@ class FTPClient:
 
             if self._is_ftp_dir(ftp_path_item):
                 self._mirror_ftp_dir(ftp_path_item, local_path_item)
-            else:
+            elif self._pattern_check(item):
                 ftp_file = FTPFile(ftp_path_item, local_path_item)
                 # TODO: 추가할 때 중복 제거할 수 있는 방안 고민
                 logging.debug('Adding ftp_file:', ftp_file)
@@ -123,10 +127,8 @@ class FTPClient:
         except ftplib.error_perm:
             return False
 
+    def _pattern_check(self, item):
+        if self.pattern is None or re.search(self.pattern, item):
+            return True
 
-if __name__ == '__main__':
-    url = 'ftp-npp.bou.class.noaa.gov'
-    ftp_client = FTPClient(url)
-    ftp_client.apply_file_to_download('20200301/VIIRS-SDR/VIIRS-Imagery-Band-01-SDR', 'download')
-    ftp_client.download()
-    # print(ftp_client.file_to_download)
+        return False
