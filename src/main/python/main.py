@@ -112,7 +112,7 @@ class MainWindow(QtWidgets.QMainWindow, mainwindow.Ui_MainWindow):
         pass
 
     def append_downloaded_file(self, ftp_file: FTPFile):
-        item = QtGui.QStandardItem(ftp_file.ftp_path)
+        item = QtGui.QStandardItem(ftp_file.local_path)
         self.downloaded_model.appendRow(item)
         self.progressBar.setValue(self.progressBar.value() + 1)
 
