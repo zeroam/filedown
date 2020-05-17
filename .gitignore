@@ -3,4 +3,5 @@ log
 venv
 download
 .vscode
+.env
 *.txt
