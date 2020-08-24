@@ -42,3 +42,5 @@ pip install -r requirements.txt
 fbs run
 ```
 
+### Updates
+- [Notion Page](https://www.notion.so/FileDown-FTP-Downloader-456b11b7e16d409998b3a6e3b89bef9d)
